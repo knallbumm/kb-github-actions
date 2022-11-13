@@ -1,0 +1,73 @@
+on:
+  workflow_call:
+    secrets:
+      NPM_TOKEN:
+        required: false
+    inputs:
+      checkout_modules:
+        type: boolean
+        required: false
+      test_check:
+        type: boolean
+        required: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  checks:
+    uses: knallbumm/kb-github-actions/.github/workflows/checks.yml@main
+    secrets:
+      NPM_TOKEN: ${{secrets.NPM_TOKEN }}
+    with:
+      test_check: ${{ inputs.test_check }}
+      checkout_modules: ${{ inputs.checkout_modules }}
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: ci
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.NPM_TOKEN }}
+
+      - name: "Automated Version Bump"
+        uses: "phips28/gh-action-bump-version@master"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=prod,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=dev,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
+            type=ref,event=branch
+            type=raw,value=${{ steps.package-version.outputs.current-version}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: NPM_TOKEN=${{ secrets.NPM_TOKEN }}

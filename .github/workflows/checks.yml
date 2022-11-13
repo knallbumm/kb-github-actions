@@ -1,0 +1,78 @@
+on:
+  workflow_call:
+    secrets:
+      NPM_TOKEN:
+        required: false
+    inputs:
+      checkout_modules:
+        type: boolean
+        required: false
+      test_check:
+        type: boolean
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: prepare node
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        with:
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          checkout_modules: ${{ inputs.checkout_modules }}
+
+      - name: run build
+        run: npm run build
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: prepare node
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        with:
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          checkout_modules: ${{ inputs.checkout_modules }}
+
+      - name: run linting
+        run: npm run lint
+
+  type:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: prepare node
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        with:
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          checkout_modules: ${{ inputs.checkout_modules }}
+
+      - name: run typecheck
+        run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.test_check == true }}
+    timeout-minutes: 10
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: prepare node
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        with:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          checkout_modules: ${{ inputs.checkout_modules }}
+
+      - name: run tests
+        run: npm run test

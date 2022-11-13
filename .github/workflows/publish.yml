@@ -1,0 +1,48 @@
+on:
+  workflow_call:
+    secrets:
+      NPM_TOKEN:
+        required: false
+    inputs:
+      checkout_modules:
+        type: boolean
+        required: false
+      test_check:
+        type: boolean
+        required: false
+
+jobs:
+  checks:
+    uses: knallbumm/kb-github-actions/.github/workflows/checks.yml@main
+    secrets:
+      NPM_TOKEN: ${{secrets.NPM_TOKEN }}
+    with:
+      test_check: ${{ inputs.test_check }}
+      checkout_modules: ${{ inputs.checkout_modules }}
+
+  publish:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          registry-url: https://npm.pkg.github.com
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: "Automated Version Bump"
+        uses: "phips28/gh-action-bump-version@master"
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
