@@ -27,7 +27,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: ci
+    needs: checks
     permissions:
       contents: write
       packages: write
