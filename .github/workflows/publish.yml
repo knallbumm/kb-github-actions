@@ -21,7 +21,7 @@ jobs:
       checkout_modules: ${{ inputs.checkout_modules }}
 
   publish:
-    needs: ci
+    needs: checks
     runs-on: ubuntu-latest
     permissions:
       contents: write
