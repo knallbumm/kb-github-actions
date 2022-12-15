@@ -40,5 +40,5 @@ runs:
         run_install: false
 
     - name: install node packages
-      run: pnpm ci
+      run: pnpm install
       shell: bash

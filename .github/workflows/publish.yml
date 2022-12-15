@@ -41,7 +41,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - run: pnpm ci
+      - run: pnpm install
       - run: pnpm run build
       - run: pnpm publish --access restricted
         env:
