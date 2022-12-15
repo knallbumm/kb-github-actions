@@ -17,7 +17,7 @@ env:
 
 jobs:
   checks:
-    uses: knallbumm/kb-github-actions/.github/workflows/checks.yml@main
+    uses: knallbumm/kb-github-actions/.github/workflows/checks.yml@pnpm
     secrets:
       NPM_TOKEN: ${{secrets.NPM_TOKEN }}
     with:
