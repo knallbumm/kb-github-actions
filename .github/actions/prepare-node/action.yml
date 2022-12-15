@@ -33,6 +33,12 @@ runs:
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 7
+        run_install: false
+
     - name: install node packages
-      run: npm ci
+      run: pnpm ci
       shell: bash
