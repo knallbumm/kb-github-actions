@@ -28,18 +28,19 @@ jobs:
       packages: write
 
     steps:
+      - uses: actions/checkout@v3
+      
+      - name: "Automated Version Bump"
+        uses: "phips28/gh-action-bump-version@master"
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
       - name: prepare node
         uses: knallbumm/kb-github-actions/.github/actions/prepare-node@pnpm
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
-          
-      - name: "Automated Version Bump"
-        uses: "phips28/gh-action-bump-version@master"
-        env:
-          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - run: pnpm install
       - run: pnpm run build
       - run: pnpm publish --access restricted
         env:
