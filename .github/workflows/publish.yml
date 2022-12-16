@@ -42,6 +42,7 @@ jobs:
           checkout_modules: ${{ inputs.checkout_modules }}
 
       - run: pnpm run build
+      
       - run: pnpm publish --access restricted
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

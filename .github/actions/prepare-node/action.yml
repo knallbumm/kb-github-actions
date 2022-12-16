@@ -12,9 +12,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: checkout repository
-      uses: actions/checkout@v3
-
     - name: Checkout submodules using a PAT
       shell: bash
       if: ${{ inputs.checkout_modules == true }}
