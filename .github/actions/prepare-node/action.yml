@@ -1,16 +1,19 @@
-name: 'Prepare node'
-description: 'Prepares node by installing node + dependencies'
+name: "Prepare node"
+description: "Prepares node by installing node + dependencies"
 
 inputs:
   npm_token:
-    description: 'may be needed to checkout submodules'
+    description: "may be needed to checkout submodules"
     required: true
   checkout_modules:
-    description: 'wether to checkout all submodules'
+    description: "wether to checkout all submodules"
     required: false
+  npm_registry:
+    description: which npm registry to use
+    required: true
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Checkout submodules using a PAT
       shell: bash
@@ -26,7 +29,7 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
-        registry-url: https://npm.pkg.github.com
+        registry-url: ${{ inputs.npm_registry }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
 
@@ -36,12 +39,12 @@ runs:
       with:
         version: 7
         run_install: false
-    
+
     - name: Get pnpm store directory
       id: pnpm-cache
       shell: bash
       run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
     - uses: actions/cache@v3
       name: Setup pnpm cache

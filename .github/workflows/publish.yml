@@ -10,6 +10,9 @@ on:
       test_check:
         type: boolean
         required: false
+      npm_registry:
+        type: string
+        required: true
 
 jobs:
   checks:
@@ -19,6 +22,7 @@ jobs:
     with:
       test_check: ${{ inputs.test_check }}
       checkout_modules: ${{ inputs.checkout_modules }}
+      npm_registry: ${{ inputs.npm_registry }}
 
   publish:
     needs: checks
@@ -29,20 +33,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: "Automated Version Bump"
         uses: "phips28/gh-action-bump-version@master"
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
+
       - name: prepare node
         uses: knallbumm/kb-github-actions/.github/actions/prepare-node@pnpm
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - run: pnpm run build
-      
+
       - run: pnpm publish --access restricted
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

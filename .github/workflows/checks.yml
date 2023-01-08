@@ -10,6 +10,9 @@ on:
       test_check:
         type: boolean
         required: false
+      npm_registry:
+        type: string
+        required: true
 
 jobs:
   build:
@@ -24,6 +27,7 @@ jobs:
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run build
         run: pnpm run build
@@ -40,6 +44,7 @@ jobs:
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run linting
         run: pnpm run lint
@@ -56,6 +61,7 @@ jobs:
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run typecheck
         run: pnpm run typecheck
@@ -73,6 +79,7 @@ jobs:
         with:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run tests
         run: pnpm run test
