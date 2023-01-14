@@ -12,7 +12,8 @@ on:
         required: false
       npm_registry:
         type: string
-        required: true
+        required: false
+        default: "https://npm.pkg.github.com"
 
 jobs:
   checks:

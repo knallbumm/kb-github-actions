@@ -10,7 +10,8 @@ inputs:
     required: false
   npm_registry:
     description: which npm registry to use
-    required: true
+    required: false
+    default: "https://npm.pkg.github.com"
 
 runs:
   using: "composite"
