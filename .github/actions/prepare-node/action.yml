@@ -6,7 +6,7 @@ inputs:
     description: "may be needed to checkout submodules"
     required: true
   checkout_modules:
-    description: "wether to checkout all submodules"
+    description: "whether to checkout all submodules"
     required: false
   npm_registry:
     description: which npm registry to use
