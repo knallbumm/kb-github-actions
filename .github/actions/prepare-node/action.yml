@@ -39,10 +39,10 @@ runs:
       with:
         version: 9
 
-    - name: setup node.js 21
+    - name: setup node.js lts
       uses: actions/setup-node@v4
       with:
-        node-version: 21
+        node-version: lts/*
         cache: ${{ (inputs.with_cache == true ||  inputs.with_cache == 'true') && 'pnpm' | '' }}
         registry-url: ${{ inputs.npm_registry }}
       env:
