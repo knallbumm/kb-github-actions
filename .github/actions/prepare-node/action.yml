@@ -12,10 +12,14 @@ inputs:
     description: which npm registry to use
     required: false
     default: "https://npm.pkg.github.com"
+  with_cache:
+    description: whether to use a pnpm cache
+    required: false
+    default: "true"
   run_install:
     description: whether to run install
     required: false
-    default: 'true'
+    default: "true"
 
 runs:
   using: "composite"
@@ -39,7 +43,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: 21
-        cache: pnpm
+        cache: ${{ (inputs.with_cache == true ||  inputs.with_cache == 'true') && 'pnpm' | '' }}
         registry-url: ${{ inputs.npm_registry }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
