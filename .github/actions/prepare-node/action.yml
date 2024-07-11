@@ -26,35 +26,20 @@ runs:
         git submodule sync
         git submodule update --init --recursive
 
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 9
+
     - name: setup node.js 21
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 21
+        cache: pnpm
         registry-url: ${{ inputs.npm_registry }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
 
-    - name: Install pnpm
-      id: pnpm-install
-      uses: pnpm/action-setup@v2
-      with:
-        version: 9
-        run_install: false
-
-    - name: Get pnpm store directory
-      id: pnpm-cache
-      shell: bash
-      run: |
-        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-    - uses: actions/cache@v3
-      name: Setup pnpm cache
-      with:
-        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-store-
-
     - name: install node packages
-      run: pnpm install
       shell: bash
+      run: pnpm install
