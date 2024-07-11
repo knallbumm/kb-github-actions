@@ -43,7 +43,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: lts/*
-        cache: ${{ (inputs.with_cache == true ||  inputs.with_cache == 'true') && 'pnpm' | '' }}
+        cache: ${{ (inputs.with_cache == true ||  inputs.with_cache == 'true') && 'pnpm' || '' }}
         registry-url: ${{ inputs.npm_registry }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
