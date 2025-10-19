@@ -4,6 +4,9 @@ on:
       NPM_TOKEN:
         required: false
     inputs:
+      image_name:
+        type: string
+        required: false
       checkout_modules:
         type: boolean
         required: false
@@ -14,10 +17,15 @@ on:
         type: string
         required: false
         default: "https://npm.pkg.github.com"
+      directory:
+        type: string
+        description: "the directory to run the action in"
+        required: false
+        default: "."
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ inputs.image_name || github.repository }}
 
 jobs:
   checks:
@@ -52,10 +60,13 @@ jobs:
         uses: "phips28/gh-action-bump-version@master"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGEJSON_DIR: ${{ inputs.directory }}
 
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: ${{ inputs.directory }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -76,6 +87,7 @@ jobs:
         with:
           context: .
           push: true
+          file: ${{ inputs.directory}}/Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           platforms: linux/amd64,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
