@@ -1,38 +1,57 @@
-name: 'Prepare node'
-description: 'Prepares node by installing node + dependencies'
+name: "Prepare node"
+description: "Prepares node by installing node + dependencies"
 
 inputs:
   npm_token:
-    description: 'may be needed to checkout submodules'
+    description: "may be needed to checkout submodules"
     required: true
   checkout_modules:
-    description: 'wether to checkout all submodules'
+    description: "whether to checkout all submodules"
     required: false
+  npm_registry:
+    description: "which npm registry to use"
+    required: false
+    default: "https://npm.pkg.github.com"
+  with_cache:
+    description: "whether to use a pnpm cache"
+    required: false
+    default: "true"
+  run_install:
+    description: "whether to run install"
+    required: false
+    default: "true"
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-    - name: checkout repository
-      uses: actions/checkout@v3
-
     - name: Checkout submodules using a PAT
       shell: bash
-      if: ${{ inputs.checkout_modules == true }}
+      if: ${{ inputs.checkout_modules == true || inputs.checkout_modules == 'true' }}
       run: |
-        git config --file .gitmodules --get-regexp url | while read url; do
-          git config --file=.gitmodules $(echo "$url" | sed -E "s/git@github.com:|https:\/\/github.com\//https:\/\/${{ inputs.NPM_TOKEN }}:${{ inputs.NPM_TOKEN }}@github.com\//")
+        git config --file .gitmodules --get-regexp url | while read -r key url; do
+          git config --file=.gitmodules "$key" "$(printf '%s' "$url" | sed -E "s#git@github.com:#https://${{ inputs.npm_token }}:${{ inputs.npm_token }}@github.com/#;s#https://github.com/#https://${{ inputs.npm_token }}:${{ inputs.npm_token }}@github.com/#")"
         done
         git submodule sync
         git submodule update --init --recursive
 
-    - name: setup node.js 16
-      uses: actions/setup-node@v3
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v6
       with:
-        node-version: 16
-        registry-url: https://npm.pkg.github.com
+        version: 12
+        run_install: false
+
+    - name: setup node.js lts
+      uses: actions/setup-node@v7
+      with:
+        node-version: lts/*
+        cache: ${{ (inputs.with_cache == true || inputs.with_cache == 'true') && 'pnpm' || '' }}
+        registry-url: ${{ inputs.npm_registry }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
 
     - name: install node packages
-      run: npm ci
+      if: ${{ inputs.run_install == true || inputs.run_install == 'true' }}
       shell: bash
+      run: pnpm install
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}

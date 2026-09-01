@@ -10,55 +10,71 @@ on:
       test_check:
         type: boolean
         required: false
+      npm_registry:
+        type: string
+        required: false
+        default: "https://npm.pkg.github.com"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: prepare node
-        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@pnpm12
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run build
-        run: npm run build
+        run: pnpm run build
+
+      - name: save-to-cache
+        uses: actions/cache/save@v6
+        with:
+          path: dist
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: prepare node
-        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@pnpm12
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run linting
-        run: npm run lint
+        run: pnpm run lint
 
   type:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: prepare node
-        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@pnpm12
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run typecheck
-        run: npm run typecheck
+        run: pnpm run typecheck
 
   test:
     runs-on: ubuntu-latest
@@ -66,13 +82,14 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: prepare node
-        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@main
+        uses: knallbumm/kb-github-actions/.github/actions/prepare-node@pnpm12
         with:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
           checkout_modules: ${{ inputs.checkout_modules }}
+          npm_registry: ${{ inputs.npm_registry }}
 
       - name: run tests
-        run: npm run test
+        run: pnpm run test
